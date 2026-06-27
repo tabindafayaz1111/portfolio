@@ -155,6 +155,23 @@ function observeReveals() {
 document.querySelectorAll(".card, .skill-group, .tl-item, .gh-card, .section-title, .section-lead")
   .forEach((el) => el.classList.add("reveal"));
 
+/* ============ Expandable About cards ============ */
+document.querySelectorAll(".cards .card").forEach((card) => {
+  const hint = card.querySelector(".card-hint");
+  const toggle = () => {
+    const open = card.classList.toggle("open");
+    card.setAttribute("aria-expanded", open ? "true" : "false");
+    if (hint) hint.firstChild.textContent = open ? "Show less" : "Click to learn more";
+  };
+  card.addEventListener("click", toggle);
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggle();
+    }
+  });
+});
+
 /* ============ Contact form (Web3Forms) ============ */
 const contactForm = document.getElementById("contactForm");
 if (contactForm) {
@@ -194,7 +211,7 @@ if (contactForm) {
         status.className = "form-status err";
       }
     } catch (err) {
-      status.textContent = "Network error. Please try again, or email me directly.";
+      status.textContent = "Network error. Please check your connection and try again.";
       status.className = "form-status err";
     } finally {
       submitBtn.disabled = false;

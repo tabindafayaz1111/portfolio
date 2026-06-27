@@ -46,4 +46,5 @@ script.js    # project rendering, filters, theme toggle
 ## Contact
 
 - GitHub: [tabindafayaz1111](https://github.com/tabindafayaz1111)
-- Email: ftoiba738@gmail.com
+- LinkedIn: [Tabinda Fayaz Lone](https://www.linkedin.com/in/tabinda-fayaz-lone-2503b6407)
+- Or use the contact form on the site

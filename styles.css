@@ -358,7 +358,45 @@ a { color: inherit; text-decoration: none; }
 }
 .card h3 { font-size: 18px; margin-bottom: 10px; font-weight: 600; }
 .card p { color: var(--muted); font-size: 14px; }
-.card-hint { display: block; margin-top: 16px; font-size: 12px; color: var(--accent); font-weight: 500; }
+.card-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+}
+.card-hint::after {
+  content: "▾";
+  font-size: 11px;
+  transition: transform .3s;
+}
+.card.open .card-hint::after { transform: rotate(180deg); }
+
+/* Expandable detail */
+.card-detail {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  text-align: left;
+  transition: max-height .4s ease, opacity .35s ease, margin-top .35s ease;
+}
+.card.open .card-detail { max-height: 320px; opacity: 1; margin-top: 18px; }
+.card-detail ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.card-detail li {
+  position: relative;
+  font-size: 13px;
+  color: var(--muted);
+  padding-left: 20px;
+}
+.card-detail li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+.card-detail strong { color: var(--text); font-weight: 600; }
 
 .pill-center { display: flex; justify-content: center; margin-top: 36px; }
 .pill {
