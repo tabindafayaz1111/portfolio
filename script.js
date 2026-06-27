@@ -155,6 +155,64 @@ function observeReveals() {
 document.querySelectorAll(".card, .skill-group, .tl-item, .gh-card, .section-title, .section-lead")
   .forEach((el) => el.classList.add("reveal"));
 
+/* ============ Contact form (Web3Forms) ============ */
+const contactForm = document.getElementById("contactForm");
+if (contactForm) {
+  const status = document.getElementById("formStatus");
+  const submitBtn = document.getElementById("contactSubmit");
+  const label = submitBtn.querySelector(".btn-label");
+
+  contactForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const key = contactForm.querySelector('input[name="access_key"]').value;
+    if (key === "YOUR_WEB3FORMS_ACCESS_KEY") {
+      status.textContent = "Form not configured yet — add your Web3Forms access key in index.html.";
+      status.className = "form-status err";
+      return;
+    }
+
+    const original = label.textContent;
+    submitBtn.disabled = true;
+    label.textContent = "Sending…";
+    status.textContent = "";
+    status.className = "form-status";
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: new FormData(contactForm),
+      });
+      const json = await res.json();
+      if (json.success) {
+        status.textContent = "✓ Thanks! Your message has been sent — I'll get back to you soon.";
+        status.className = "form-status ok";
+        contactForm.reset();
+      } else {
+        status.textContent = json.message || "Something went wrong. Please try again.";
+        status.className = "form-status err";
+      }
+    } catch (err) {
+      status.textContent = "Network error. Please try again, or email me directly.";
+      status.className = "form-status err";
+    } finally {
+      submitBtn.disabled = false;
+      label.textContent = original;
+    }
+  });
+}
+
+/* ============ Scroll progress bar ============ */
+const scrollProgress = document.getElementById("scrollProgress");
+function updateProgress() {
+  if (!scrollProgress) return;
+  const h = document.documentElement;
+  const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
+  scrollProgress.style.transform = `scaleX(${Math.min(scrolled, 1)})`;
+}
+window.addEventListener("scroll", updateProgress, { passive: true });
+
 /* ============ Theme toggle (dark / light) ============ */
 const themeToggle = document.getElementById("themeToggle");
 if (themeToggle) {
@@ -182,3 +240,4 @@ renderProjects();
 buildGraph();
 observeReveals();
 onScroll();
+updateProgress();
