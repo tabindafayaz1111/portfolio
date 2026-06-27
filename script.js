@@ -155,6 +155,15 @@ function observeReveals() {
 document.querySelectorAll(".card, .skill-group, .tl-item, .gh-card, .section-title, .section-lead")
   .forEach((el) => el.classList.add("reveal"));
 
+/* ============ Profile photo save deterrents ============ */
+/* Note: these only stop casual saving. Screenshots / screen recording
+   cannot be blocked by any website — that's a browser/OS limitation. */
+const navBrand = document.querySelector(".nav-brand");
+if (navBrand) {
+  navBrand.addEventListener("contextmenu", (e) => e.preventDefault());
+  navBrand.addEventListener("dragstart", (e) => e.preventDefault());
+}
+
 /* ============ Expandable About cards ============ */
 document.querySelectorAll(".cards .card").forEach((card) => {
   const hint = card.querySelector(".card-hint");
