@@ -1,39 +1,46 @@
 /* ============ Project data — edit this list to add your own ============ */
 const projects = [
   {
-    title: " Medical Insurance Cost Prediction", icon: "🏠", category: "Machine Learning", link: "#",
-    desc: "Developed a machine learning model to estimate medical insurance costs based on demographic and health-related factors. The project includes data preprocessing, feature engineering, model training, and prediction to support cost estimation.",
-    tags: ["Machine Learning", "Pandas", "NumPy", "Scikit-learn", "joblib","streamlit"],
+    title: "Heart Disease Prediction", icon: "❤️", category: "Machine Learning",
+    link: "https://heartdiseasepredictionusing-knn-git-d2r.streamlit.app/",
+    desc: "A live Streamlit web app that predicts the risk of heart disease from a patient's clinical inputs (age, blood pressure, cholesterol, chest-pain type and more) using a K-Nearest Neighbors (KNN) classifier trained on a medical dataset.",
+    tags: ["Machine Learning", "KNN", "Scikit-learn", "Pandas", "Streamlit"],
   },
   {
-    title: " Employee Performance & Productivity Analysis", icon: "👨‍💼", category: "Data Analytics", link: "#",
-    desc: "Performed exploratory data analysis to identify productivity trends, employee performance metrics, and workplace insights through data visualization and statistical analysis.",
-    tags: ["Data Analytics", "Pandas", "NumPy", "Matplotlib ", " Seaborn"," Plotly"],
+    title: "Medical Insurance Cost Prediction", icon: "🏥", category: "Machine Learning",
+    link: "https://medical-insurance-cost-predictiongit-elkavfb6dkkffjgojjyaor.streamlit.app/",
+    desc: "An interactive Streamlit app that estimates medical insurance charges from demographic and health factors such as age, BMI, number of children, smoking status and region, powered by a regression model with full data preprocessing and feature engineering.",
+    tags: ["Machine Learning", "Regression", "Scikit-learn", "Pandas", "Streamlit"],
   },
   {
-    title: "Customer Segmentation using Machine Learning", icon: "👥", category: "Machine Learning", link: "#",
-    desc: "Implemented multiple clustering algorithms to segment customers based on purchasing behavior, enabling targeted marketing strategies and business decision-making.",
-    tags: ["Machine Learning", "Agglomerative Clustering", "NumPy", "Scikit-learn", "Pandas"],
+    title: "Customer Segmentation", icon: "👥", category: "Machine Learning",
+    link: "https://github.com/tabindafayaz1111/Customer_Segmentation_Agglomerative_Clustering",
+    desc: "Segmented wholesale customers by spending across product categories using agglomerative hierarchical clustering. Compared Ward, Complete, Average and Single linkage with dendrograms — Ward gave the best separation (silhouette score ~0.70).",
+    tags: ["Machine Learning", "Agglomerative Clustering", "Scikit-learn", "SciPy", "Pandas"],
   },
   {
-    title: " HR Analytics Dashboard", icon: "📊", category: "Dashboards", link: "#",
-    desc: "Created an interactive HR dashboard that provides insights into employee performance, workforce distribution, attrition, and organizational KPIs using Power BI.",
+    title: "Employee Performance & Productivity Analysis", icon: "👨‍💼", category: "Data Analytics",
+    link: "https://github.com/tabindafayaz1111/Python_Employee_Performance-Productivity_Analysis",
+    desc: "Exploratory analysis of a 300-employee HR dataset that engineers a composite Productivity Score and studies how performance relates to department, role, age, remote work and job satisfaction through statistical charts and correlation heatmaps.",
+    tags: ["Data Analytics", "Pandas", "NumPy", "Matplotlib", "Seaborn", "Plotly"],
+  },
+  {
+    title: "Diwali Sales Analysis", icon: "🎆", category: "Data Analytics",
+    link: "https://github.com/tabindafayaz1111/Python-Diwali-Sales",
+    desc: "Exploratory analysis of festive retail sales data that profiles the key buyer demographic, compares category preferences (food, clothing, electronics) and surfaces the top-selling products driving Diwali revenue.",
+    tags: ["Data Analytics", "Pandas", "Matplotlib", "Seaborn"],
+  },
+  {
+    title: "HR Analytics Dashboard", icon: "📊", category: "Dashboards",
+    link: "https://github.com/tabindafayaz1111/Power-Bi-HR-Analysis",
+    desc: "An interactive Power BI dashboard analyzing employee attrition across age, salary, job role, education field and tenure — highlighting high-risk segments such as employees aged 26–35, lower salary bands and early-tenure staff.",
     tags: ["Dashboards", "Power BI", "Data Visualization"],
   },
   {
-    title: " Cafe Sales Analysis Dashboard", icon: "☕", category: "Dashboards", link: "#",
-    desc: "Analyzed cafe sales data to discover customer purchasing patterns, revenue trends, and product performance through data analysis and interactive dashboards.",
-    tags: ["Dashboards", "Power BI", "Data Visualization"],
-  },
-  {
-    title: " Pizza Sales Analysis", icon: "🍕", category: "Dashboards", link: "#",
-    desc: "Conducted comprehensive sales analysis on pizza orders to identify best-selling products, peak sales periods, and revenue trends for business optimization.",
-    tags: ["Dashboards", "Power BI", "Data Visualization"],
-  },
-  {
-    title: " Diwali Sales Analysis", icon: "🎆", category: "Dashboards", link: "#",
-    desc: "Performed exploratory analysis of festive retail sales data to understand customer demographics, buying behavior, and seasonal purchasing patterns.",
-    tags: ["Dashboards", "Power BI", "Data Visualization"],
+    title: "Cafe Sales Analysis Dashboard", icon: "☕", category: "Dashboards",
+    link: "https://github.com/tabindafayaz1111/python-powerbi-cafe-sales-analysis-and-dashboard",
+    desc: "An end-to-end project combining Python data cleaning and EDA with an interactive Power BI dashboard to reveal cafe sales trends, product performance and revenue insights that support operational decisions.",
+    tags: ["Dashboards", "Power BI", "Python", "Data Visualization"],
   },
 
 ];
@@ -56,21 +63,23 @@ function renderProjects() {
   });
 
   grid.innerHTML = filtered
-    .map(
-      (p) => `
+    .map((p) => {
+      const isLive = p.link.includes("streamlit");
+      const isCode = p.link.includes("github.com");
+      const label = isLive ? "Live Demo ↗" : isCode ? "View Code ↗" : "Open Project ↗";
+      return `
     <article class="proj reveal">
       <div class="proj-head">
         <span class="proj-title">${p.icon} ${p.title}</span>
-        <a href="${p.link}" class="proj-ext" aria-label="Open ${p.title}">↗</a>
+        <a href="${p.link}" target="_blank" rel="noopener" class="proj-ext" aria-label="Open ${p.title}">↗</a>
       </div>
       <p class="proj-desc">${p.desc}</p>
       <div class="tags">${p.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
       <div class="proj-foot">
-        <a href="${p.link}">Details</a>
-        <a href="${p.link}" class="muted">Open Project ↗</a>
+        <a href="${p.link}" target="_blank" rel="noopener">${label}</a>
       </div>
-    </article>`
-    )
+    </article>`;
+    })
     .join("");
 
   if (!filtered.length) {
