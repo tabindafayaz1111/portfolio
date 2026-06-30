@@ -1,3 +1,129 @@
+/* ============ Neural-network animated backdrop ============ */
+(function neuralNetwork() {
+  const canvas = document.getElementById("neuralCanvas");
+  if (!canvas) return;
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ctx = canvas.getContext("2d");
+
+  let w, h, dpr, nodes = [];
+  const mouse = { x: -9999, y: -9999 };
+
+  // Read brand colours from CSS variables so the net matches the active theme.
+  function cssVar(name, fallback) {
+    const v = getComputedStyle(document.body).getPropertyValue(name).trim();
+    return v || fallback;
+  }
+  let nodeRGB, lineRGB, baseOpacity;
+  function readColors() {
+    nodeRGB = cssVar("--net-node", "129, 140, 248");
+    lineRGB = cssVar("--net-line", "168, 85, 247");
+    baseOpacity = parseFloat(cssVar("--net-opacity", "0.55")) || 0.55;
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth = window.innerWidth;
+    h = canvas.clientHeight = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Particle count scales with screen area (kept modest for performance).
+    const count = Math.min(90, Math.round((w * h) / 16000));
+    nodes = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      r: Math.random() * 1.6 + 0.8,
+    }));
+  }
+
+  const LINK_DIST = 130;
+  const MOUSE_DIST = 170;
+
+  function frame() {
+    ctx.clearRect(0, 0, w, h);
+
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > w) n.vx *= -1;
+      if (n.y < 0 || n.y > h) n.vy *= -1;
+
+      // links between near nodes
+      for (let j = i + 1; j < nodes.length; j++) {
+        const m = nodes[j];
+        const dx = n.x - m.x, dy = n.y - m.y;
+        const d = Math.hypot(dx, dy);
+        if (d < LINK_DIST) {
+          ctx.strokeStyle = `rgba(${lineRGB}, ${baseOpacity * (1 - d / LINK_DIST) * 0.5})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y);
+          ctx.lineTo(m.x, m.y);
+          ctx.stroke();
+        }
+      }
+
+      // link to mouse for interactive feel
+      const mdx = n.x - mouse.x, mdy = n.y - mouse.y;
+      const md = Math.hypot(mdx, mdy);
+      if (md < MOUSE_DIST) {
+        ctx.strokeStyle = `rgba(${nodeRGB}, ${baseOpacity * (1 - md / MOUSE_DIST)})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(n.x, n.y);
+        ctx.lineTo(mouse.x, mouse.y);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = `rgba(${nodeRGB}, ${baseOpacity + 0.15})`;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  function drawStatic() {
+    // Single non-animated render for reduced-motion users.
+    ctx.clearRect(0, 0, w, h);
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const m = nodes[j];
+        const d = Math.hypot(n.x - m.x, n.y - m.y);
+        if (d < LINK_DIST) {
+          ctx.strokeStyle = `rgba(${lineRGB}, ${baseOpacity * (1 - d / LINK_DIST) * 0.4})`;
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y);
+          ctx.lineTo(m.x, m.y);
+          ctx.stroke();
+        }
+      }
+      ctx.fillStyle = `rgba(${nodeRGB}, ${baseOpacity})`;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  window.addEventListener("mousemove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener("mouseout", () => { mouse.x = -9999; mouse.y = -9999; });
+  window.addEventListener("resize", () => { resize(); if (reduce) drawStatic(); }, { passive: true });
+
+  readColors();
+  resize();
+  if (reduce) drawStatic();
+  else requestAnimationFrame(frame);
+
+  // Expose a recolor hook so the theme toggle can refresh particle colours.
+  window.__neuralRecolor = () => { readColors(); if (reduce) drawStatic(); };
+})();
+
 /* ============ Project data — edit this list to add your own ============ */
 const projects = [
   {
@@ -255,6 +381,8 @@ if (themeToggle) {
     const isLight = theme === "light";
     document.body.classList.toggle("light", isLight);
     themeToggle.textContent = isLight ? "☀️" : "🌙";
+    // Refresh the neural backdrop to the active theme's accent colours.
+    if (window.__neuralRecolor) window.__neuralRecolor();
   };
 
   // Restore saved preference, otherwise follow the OS setting.
