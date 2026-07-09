@@ -127,6 +127,13 @@
 /* ============ Project data — edit this list to add your own ============ */
 const projects = [
   {
+    title: "SkillRoute", icon: "🧭", category: "Web",
+    link: "https://skill-route-rho.vercel.app",
+    github: "https://github.com/tabindafayaz1111/SkillRoute",
+    desc: "An interactive learning platform — think Duolingo + Brilliant + Kaggle Learn — with 23 courses across 5 tracks: AI/ML, Web & Full-Stack, Programming Languages, Data & Analytics, and AI Engineering. Features a live in-browser code playground (Pyodide/WASM), a real AI mentor powered by Claude, XP gamification, certificates, a command-palette search, and an animated AI-particle hero.",
+    tags: ["Full Stack", "JavaScript", "HTML", "CSS", "AI Mentor", "Gamification", "Pyodide", "Vercel"],
+  },
+  {
     title: "Heart Disease Prediction", icon: "❤️", category: "Machine Learning",
     link: "https://heartdiseasepredictionusing-knn-git-d2r.streamlit.app/",
     desc: "A live Streamlit web app that predicts the risk of heart disease from a patient's clinical inputs (age, blood pressure, cholesterol, chest-pain type and more) using a K-Nearest Neighbors (KNN) classifier trained on a medical dataset.",
@@ -190,9 +197,13 @@ function renderProjects() {
 
   grid.innerHTML = filtered
     .map((p) => {
-      const isLive = p.link.includes("streamlit");
+      const isLive = p.link.includes("streamlit") || p.link.includes("vercel.app") || p.link.includes("netlify.app");
       const isCode = p.link.includes("github.com");
       const label = isLive ? "Live Demo ↗" : isCode ? "View Code ↗" : "Open Project ↗";
+      // Build footer links — if project has both a live link AND a github link, show both
+      const footerLinks = p.github
+        ? `<a href="${p.link}" target="_blank" rel="noopener">${label}</a><a href="${p.github}" target="_blank" rel="noopener" class="muted">GitHub ↗</a>`
+        : `<a href="${p.link}" target="_blank" rel="noopener">${label}</a>`;
       return `
     <article class="proj reveal">
       <div class="proj-head">
@@ -202,7 +213,7 @@ function renderProjects() {
       <p class="proj-desc">${p.desc}</p>
       <div class="tags">${p.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
       <div class="proj-foot">
-        <a href="${p.link}" target="_blank" rel="noopener">${label}</a>
+        ${footerLinks}
       </div>
     </article>`;
     })
