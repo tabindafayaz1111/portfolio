@@ -275,52 +275,64 @@ module.exports = async (req, res) => {
 
     // 6. Handle Email Notifications
     if (isNewSession) {
-      // Send notification for new visitor
-      const subject = `🔔 New Portfolio Visitor from ${city}, ${country}`;
-      const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; border: 1px solid #c8dfe8; padding: 20px; border-radius: 8px; background-color: #f0f7f9; color: #0f2432;">
-          <h2 style="color: #0e7490; border-bottom: 2px solid #0e7490; padding-bottom: 8px; margin-top: 0;">New Visitor Alert</h2>
-          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold; width: 35%;">Country:</td>
-              <td style="padding: 6px 0; color: #3d6478;">${country}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">City:</td>
-              <td style="padding: 6px 0; color: #3d6478;">${city}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">Device:</td>
-              <td style="padding: 6px 0; color: #3d6478;">${device_type}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">OS:</td>
-              <td style="padding: 6px 0; color: #3d6478;">${operating_system}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">Browser:</td>
-              <td style="padding: 6px 0; color: #3d6478;">${browser} (${browser_version})</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">Referrer:</td>
-              <td style="padding: 6px 0; color: #3d6478; word-break: break-all;">${referrer || 'Direct'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">Landing Page:</td>
-              <td style="padding: 6px 0; color: #3d6478; word-break: break-all;">${landing_page || current_page}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">Time:</td>
-              <td style="padding: 6px 0; color: #3d6478;">${new Date(now).toLocaleString()}</td>
-            </tr>
-          </table>
-          <p style="margin-top: 20px; font-size: 12px; color: #6a94a8; border-top: 1px solid #c8dfe8; padding-top: 10px;">
-            This session is logged in your Supabase database. Log in to your private admin dashboard to see their path.
-          </p>
-        </div>
-      `;
-      // Send alert asynchronously (don't block the HTTP response)
-      sendEmailNotification(subject, html);
+      // Check if we already sent a notification for this visitor in the last 15 minutes
+      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      const { data: recentVisits, error: recentErr } = await supabase
+        .from('visitors')
+        .select('session_id')
+        .eq('visitor_id', visitor_id)
+        .gte('visit_time', fifteenMinutesAgo)
+        .neq('session_id', session_id) // Exclude current session
+        .limit(1);
+
+      const shouldSendEmail = !recentVisits || recentVisits.length === 0;
+
+      if (shouldSendEmail) {
+        const subject = `🔔 New Portfolio Visitor from ${city}, ${country}`;
+        const html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; border: 1px solid #c8dfe8; padding: 20px; border-radius: 8px; background-color: #f0f7f9; color: #0f2432;">
+            <h2 style="color: #0e7490; border-bottom: 2px solid #0e7490; padding-bottom: 8px; margin-top: 0;">New Visitor Alert</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold; width: 35%;">Country:</td>
+                <td style="padding: 6px 0; color: #3d6478;">${country}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold;">City:</td>
+                <td style="padding: 6px 0; color: #3d6478;">${city}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold;">Device:</td>
+                <td style="padding: 6px 0; color: #3d6478;">${device_type}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold;">OS:</td>
+                <td style="padding: 6px 0; color: #3d6478;">${operating_system}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold;">Browser:</td>
+                <td style="padding: 6px 0; color: #3d6478;">${browser} (${browser_version})</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold;">Referrer:</td>
+                <td style="padding: 6px 0; color: #3d6478; word-break: break-all;">${referrer || 'Direct'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold;">Landing Page:</td>
+                <td style="padding: 6px 0; color: #3d6478; word-break: break-all;">${landing_page || current_page}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold;">Time:</td>
+                <td style="padding: 6px 0; color: #3d6478;">${new Date(now).toLocaleString()}</td>
+              </tr>
+            </table>
+            <p style="margin-top: 20px; font-size: 12px; color: #6a94a8; border-top: 1px solid #c8dfe8; padding-top: 10px;">
+              This session is logged in your Supabase database. Log in to your private admin dashboard to see their path.
+            </p>
+          </div>
+        `;
+        await sendEmailNotification(subject, html);
+      }
     } else if (event_type === 'resume_download') {
       // Send notification for resume download
       const subject = `📄 Resume Downloaded - Visitor from ${city}, ${country}`;
@@ -348,7 +360,7 @@ module.exports = async (req, res) => {
           </table>
         </div>
       `;
-      sendEmailNotification(subject, html);
+      await sendEmailNotification(subject, html);
     } else if (event_type === 'contact_submit') {
       // Send notification for contact submission
       const subject = `📧 New Contact Form Submission - ${city}, ${country}`;
@@ -373,7 +385,7 @@ module.exports = async (req, res) => {
           </table>
         </div>
       `;
-      sendEmailNotification(subject, html);
+      await sendEmailNotification(subject, html);
     }
 
     res.status(200).json({ success: true, is_new: isNewSession });
