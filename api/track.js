@@ -134,12 +134,46 @@ module.exports = async (req, res) => {
 
     const browser = browserInfo.name || 'Unknown';
     const browser_version = browserInfo.version || 'Unknown';
-    const operating_system = osInfo.name || 'Unknown';
     
-    // Guess device type if empty
-    let device_type = deviceInfo.type || 'Desktop';
-    if (device_type === 'Desktop' && (operating_system === 'Android' || operating_system === 'iOS')) {
+    // Normalize and run fallback regex parsing for robust device and OS identification
+    const uaLower = userAgent.toLowerCase();
+    let operating_system = osInfo.name || 'Unknown';
+    let device_type = deviceInfo.type || '';
+
+    // Direct regex overrides for OS
+    if (uaLower.includes('android')) {
+      operating_system = 'Android';
+    } else if (uaLower.includes('iphone') || uaLower.includes('ipad') || uaLower.includes('ipod')) {
+      operating_system = 'iOS';
+    } else if (uaLower.includes('windows phone')) {
+      operating_system = 'Windows Phone';
+    } else if (uaLower.includes('windows')) {
+      operating_system = 'Windows';
+    } else if (uaLower.includes('macintosh') || uaLower.includes('mac os')) {
+      operating_system = 'macOS';
+    } else if (uaLower.includes('linux')) {
+      operating_system = 'Linux';
+    }
+
+    // Direct regex overrides for Device Type
+    if (uaLower.includes('ipad')) {
+      device_type = 'Tablet';
+    } else if (uaLower.includes('iphone') || uaLower.includes('ipod') || uaLower.includes('windows phone')) {
       device_type = 'Mobile';
+    } else if (uaLower.includes('mobile') || uaLower.includes('android')) {
+      if (uaLower.includes('tablet') || !uaLower.includes('mobile')) {
+        device_type = 'Tablet';
+      } else {
+        device_type = 'Mobile';
+      }
+    }
+
+    // Capitalize and default device type
+    if (!device_type) {
+      device_type = 'Desktop';
+    } else {
+      // Normalize to CamelCase (Mobile, Tablet, Desktop, Smarttv, Console, etc.)
+      device_type = device_type.charAt(0).toUpperCase() + device_type.slice(1).toLowerCase();
     }
 
     // 4. Check if session already exists
