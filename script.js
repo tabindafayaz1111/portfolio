@@ -444,3 +444,38 @@ if (projectGrid) {
     }
   });
 }
+
+/* ============ Navbar Hamburger Menu Toggle ============ */
+const menuToggle = document.getElementById("menuToggle");
+const primaryNav = document.querySelector(".nav-wrap .nav");
+
+if (menuToggle && primaryNav) {
+  const toggleMenu = (e) => {
+    e.stopPropagation();
+    const isOpen = menuToggle.classList.toggle("open");
+    primaryNav.classList.toggle("open", isOpen);
+    menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  };
+
+  const closeMenu = () => {
+    menuToggle.classList.remove("open");
+    primaryNav.classList.remove("open");
+    menuToggle.setAttribute("aria-expanded", "false");
+  };
+
+  menuToggle.addEventListener("click", toggleMenu);
+
+  // Close menu when clicking a nav link
+  primaryNav.addEventListener("click", (e) => {
+    if (e.target.closest(".nav-link")) {
+      closeMenu();
+    }
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!menuToggle.contains(e.target) && !primaryNav.contains(e.target)) {
+      closeMenu();
+    }
+  });
+}
