@@ -360,14 +360,23 @@ if (contactForm) {
       if (json.success) {
         status.textContent = "✓ Thanks! Your message has been sent — I'll get back to you soon.";
         status.className = "form-status ok";
+        if (window.trackEvent) {
+          window.trackEvent("contact_submit", { success: true });
+        }
         contactForm.reset();
       } else {
         status.textContent = json.message || "Something went wrong. Please try again.";
         status.className = "form-status err";
+        if (window.trackEvent) {
+          window.trackEvent("contact_submit", { success: false, error: json.message });
+        }
       }
     } catch (err) {
       status.textContent = "Network error. Please check your connection and try again.";
       status.className = "form-status err";
+      if (window.trackEvent) {
+        window.trackEvent("contact_submit", { success: false, error: err.message || "Network error" });
+      }
     } finally {
       submitBtn.disabled = false;
       label.textContent = original;
@@ -415,3 +424,23 @@ buildGraph();
 observeReveals();
 onScroll();
 updateProgress();
+
+/* ============ Project Card Click Analytics ============ */
+const projectGrid = document.getElementById("projectGrid");
+if (projectGrid) {
+  projectGrid.addEventListener("click", (e) => {
+    const projCard = e.target.closest(".proj");
+    if (projCard) {
+      const titleEl = projCard.querySelector(".proj-title");
+      if (titleEl) {
+        const rawTitle = titleEl.textContent;
+        // Clean out emoji if present
+        const nameMatch = rawTitle.match(/(?:\p{Emoji}\s*)?(.+)/u);
+        const projectName = nameMatch ? nameMatch[1].trim() : rawTitle.trim();
+        if (window.trackEvent) {
+          window.trackEvent("project_click", { project_name: projectName });
+        }
+      }
+    }
+  });
+}

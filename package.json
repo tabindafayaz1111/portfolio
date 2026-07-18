@@ -1,0 +1,14 @@
+{
+  "name": "ny-portfolio",
+  "version": "1.0.0",
+  "description": "Portfolio Analytics System with Private Admin Dashboard",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.8",
+    "nodemailer": "^6.9.12",
+    "ua-parser-js": "^1.0.37"
+  }
+}

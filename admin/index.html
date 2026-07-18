@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Portfolio Analytics</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="admin.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ===== Authentication Screen ===== -->
+  <div id="authWrapper" class="auth-wrapper">
+    <div class="auth-card">
+      <h2 class="auth-logo">Admin<span>Portal</span></h2>
+      <p class="auth-subtitle">Log in using your Supabase Administrator account</p>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" class="form-input" placeholder="admin@example.com" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-admin">Sign In</button>
+      </form>
+      
+      <div id="authError" class="auth-error"></div>
+    </div>
+  </div>
+
+  <!-- ===== Dashboard Panel ===== -->
+  <div id="dashboardContainer" class="dashboard-container">
+    
+    <!-- Dashboard Header -->
+    <header class="dash-header">
+      <div class="dash-title">
+        <h1>Portfolio<span>Analytics</span> <span class="live-indicator"><span class="live-dot"></span> Live</span></h1>
+      </div>
+      <div class="dash-actions">
+        <button id="refreshBtn" class="btn-secondary">🔄 Refresh Data</button>
+        <button id="logoutBtn" class="btn-secondary">Logout</button>
+      </div>
+    </header>
+
+    <!-- Overview Statistics Cards -->
+    <section class="overview-grid">
+      
+      <div class="stat-card">
+        <div class="stat-label">Visitors Today</div>
+        <div class="stat-value" id="statsToday">0</div>
+        <div class="stat-diff neutral" id="statsTodayDiff">Today</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Visitors This Week</div>
+        <div class="stat-value" id="statsWeek">0</div>
+        <div class="stat-diff neutral" id="statsWeekDiff">Last 7 days</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Visitors This Month</div>
+        <div class="stat-value" id="statsMonth">0</div>
+        <div class="stat-diff neutral" id="statsMonthDiff">Last 30 days</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Total Visitors</div>
+        <div class="stat-value" id="statsTotal">0</div>
+        <div class="stat-diff neutral" id="statsTotalDiff">All-time sessions</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Returning Visitors</div>
+        <div class="stat-value" id="statsReturning">0</div>
+        <div class="stat-diff neutral" id="statsReturningPercent">0% of total</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">CV / Resume Downloads</div>
+        <div class="stat-value" id="statsDownloads">0</div>
+        <div class="stat-diff neutral" id="statsDownloadsDiff">Downloads logged</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Contact Form Submits</div>
+        <div class="stat-value" id="statsFormSubmits">0</div>
+        <div class="stat-diff neutral" id="statsFormSubmitsDiff">Submissions completed</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Avg. Session Duration</div>
+        <div class="stat-value" id="statsDuration">0s</div>
+        <div class="stat-diff neutral" id="statsDurationDiff">Active engagement</div>
+      </div>
+      
+    </section>
+
+    <!-- Analytics Charts Grid -->
+    <section class="charts-grid">
+      
+      <!-- Traffic Chart -->
+      <div class="chart-card full-width">
+        <div class="chart-header">
+          <h3 class="chart-title">Daily Traffic <span>(Last 14 Days)</span></h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="trafficChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Device Types Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Device Breakdown</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="deviceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Operating Systems Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Operating Systems</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="osChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Browsers Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Browser Usage</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="browserChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top Projects Clicked Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Top Project Clicks</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="projectsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top Countries Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Top Countries</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="countryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top Cities Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Top Cities</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="cityChart"></canvas>
+        </div>
+      </div>
+      
+    </section>
+
+    <!-- Visitors Log Table Section -->
+    <section class="table-section">
+      <div class="table-header-row">
+        <h3 class="chart-title">Visitor Sessions Log</h3>
+        
+        <div class="table-controls">
+          <!-- Search Box -->
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="tableSearch" class="search-input" placeholder="Search country, city, OS, browser...">
+          </div>
+          
+          <!-- Filter Device -->
+          <select id="filterDevice" class="filter-select">
+            <option value="all">All Devices</option>
+            <option value="Desktop">Desktop</option>
+            <option value="Mobile">Mobile</option>
+            <option value="Tablet">Tablet</option>
+          </select>
+          
+          <!-- Filter Actions -->
+          <select id="filterAction" class="filter-select">
+            <option value="all">All Sessions</option>
+            <option value="resume">Downloaded Resume</option>
+            <option value="contact">Submitted Contact</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table Wrapper -->
+      <div class="table-wrapper">
+        <table class="visitor-table">
+          <thead>
+            <tr id="tableHeaders">
+              <th data-column="visit_time" class="sort-desc">Time</th>
+              <th data-column="location">Location</th>
+              <th data-column="device_type">Device</th>
+              <th data-column="browser">Browser</th>
+              <th data-column="operating_system">OS</th>
+              <th data-column="pages_visited">Pages</th>
+              <th data-column="session_duration">Duration</th>
+              <th data-column="resume_downloaded">CV</th>
+              <th data-column="contact_form_submitted">Form</th>
+            </tr>
+          </thead>
+          <tbody id="visitorTableBody">
+            <!-- Row items populated via JavaScript -->
+            <tr>
+              <td colspan="9" style="text-align: center; color: var(--muted); padding: 40px;">Loading visitor data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="pagination-row">
+        <div id="paginationInfo">Showing 0 to 0 of 0 logs</div>
+        <div class="pagination-buttons">
+          <button id="prevPageBtn" class="btn-pagination" disabled>Prev</button>
+          <button id="nextPageBtn" class="btn-pagination" disabled>Next</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===== Single Visitor Details Modal ===== -->
+  <div id="detailsModal" class="modal-overlay">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h2 id="modalTitle">Visitor Session <span>#session_id</span></h2>
+        <button id="modalCloseBtn" class="btn-close">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        
+        <!-- Left: Metadata Panel -->
+        <div class="visitor-info-pane">
+          <h4 class="info-pane-title">Session Profile</h4>
+          <div id="modalInfoList">
+            <!-- Populated via JavaScript -->
+          </div>
+        </div>
+        
+        <!-- Right: Event Timeline -->
+        <div class="timeline-pane">
+          <h4 class="info-pane-title">Visitor Timeline</h4>
+          <div class="timeline-list" id="modalTimeline">
+            <!-- Populated via JavaScript -->
+          </div>
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
