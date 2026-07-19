@@ -90,12 +90,7 @@
         <div class="stat-diff neutral" id="statsReturningPercent">0% of total</div>
       </div>
       
-      <div class="stat-card">
-        <div class="stat-label">CV / Resume Downloads</div>
-        <div class="stat-value" id="statsDownloads">0</div>
-        <div class="stat-diff neutral" id="statsDownloadsDiff">Downloads logged</div>
-      </div>
-      
+
       <div class="stat-card">
         <div class="stat-label">Contact Form Submits</div>
         <div class="stat-value" id="statsFormSubmits">0</div>
@@ -208,8 +203,7 @@
           <!-- Filter Actions -->
           <select id="filterAction" class="filter-select">
             <option value="all">All Sessions</option>
-            <option value="resume">Downloaded Resume</option>
-            <option value="contact">Submitted Contact</option>
+<option value="contact">Submitted Contact</option>
           </select>
         </div>
       </div>
@@ -226,14 +220,13 @@
               <th data-column="operating_system">OS</th>
               <th data-column="pages_visited">Pages</th>
               <th data-column="session_duration">Duration</th>
-              <th data-column="resume_downloaded">CV</th>
               <th data-column="contact_form_submitted">Form</th>
             </tr>
           </thead>
           <tbody id="visitorTableBody">
             <!-- Row items populated via JavaScript -->
             <tr>
-              <td colspan="9" style="text-align: center; color: var(--muted); padding: 40px;">Loading visitor data...</td>
+              <td colspan="8" style="text-align: center; color: var(--muted); padding: 40px;">Loading visitor data...</td>
             </tr>
           </tbody>
         </table>

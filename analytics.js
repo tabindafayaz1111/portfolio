@@ -135,16 +135,6 @@
         }
       });
 
-      // Bind click listener for Resume downloads (catches dynamically added classes too)
-      document.body.addEventListener('click', (e) => {
-        const target = e.target.closest('#resumeDownload, .resume-link');
-        if (target) {
-          window.trackEvent('resume_download', {
-            href: target.getAttribute('href') || '',
-            text: target.textContent.trim()
-          });
-        }
-      });
     });
   });
 })();

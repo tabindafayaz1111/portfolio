@@ -196,9 +196,6 @@ function renderOverviewCards(totalSessions) {
     if (visitDate >= startOfWeek) weekCount++;
     if (visitDate >= startOfMonth) monthCount++;
 
-    // Total CV downloads
-    totalDownloads += (v.resume_downloaded || 0);
-
     // Total Form submissions
     if (v.contact_form_submitted) totalFormSubmissions++;
 
@@ -238,7 +235,6 @@ function renderOverviewCards(totalSessions) {
   document.getElementById('statsTotal').textContent = totalSessions || visitorsData.length;
   document.getElementById('statsReturning').textContent = `${returningCount} sessions`;
   document.getElementById('statsReturningPercent').textContent = `${returningPercent}% of sessions returning`;
-  document.getElementById('statsDownloads').textContent = totalDownloads;
   document.getElementById('statsFormSubmits').textContent = totalFormSubmissions;
   document.getElementById('statsDuration').textContent = formatAvgDuration(avgDuration);
 }
@@ -579,9 +575,7 @@ function applyTableFilters() {
 
     // Action filter
     let matchAction = true;
-    if (actionVal === 'resume') {
-      matchAction = (v.resume_downloaded || 0) > 0;
-    } else if (actionVal === 'contact') {
+    if (actionVal === 'contact') {
       matchAction = v.contact_form_submitted === true;
     }
 
@@ -637,7 +631,7 @@ function renderTable() {
   const totalLogs = filteredVisitors.length;
   
   if (totalLogs === 0) {
-    body.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 40px;">No matching sessions found.</td></tr>';
+    body.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 40px;">No matching sessions found.</td></tr>';
     document.getElementById('paginationInfo').textContent = 'Showing 0 to 0 of 0 logs';
     document.getElementById('prevPageBtn').disabled = true;
     document.getElementById('nextPageBtn').disabled = true;
@@ -681,7 +675,6 @@ function renderTable() {
       <td>${v.operating_system || 'Unknown'}</td>
       <td><span class="page-count-badge">${pagesCount} pg</span></td>
       <td>${formatDuration}</td>
-      <td><span class="badge-tag ${v.resume_downloaded > 0 ? 'yes' : 'no'}">${v.resume_downloaded > 0 ? '✓' : '—'}</span></td>
       <td><span class="badge-tag ${v.contact_form_submitted ? 'yes' : 'no'}">${v.contact_form_submitted ? '✓' : '—'}</span></td>
     `;
     body.appendChild(tr);
@@ -735,8 +728,6 @@ async function openVisitorDetails(visitor) {
     <div class="info-item"><span class="lbl">Visit Started</span><span class="val">${formatTime(visitor.visit_time)}</span></div>
     <div class="info-item"><span class="lbl">Last Activity</span><span class="val">${formatTime(visitor.last_activity)}</span></div>
     <div class="info-item"><span class="lbl">Session Length</span><span class="val">${durationStr}</span></div>
-    <div class="info-item"><span class="lbl">Pages Visited Count</span><span class="val">${Array.isArray(visitor.pages_visited) ? visitor.pages_visited.length : 0}</span></div>
-    <div class="info-item"><span class="lbl">Resume Downloaded</span><span class="val">${visitor.resume_downloaded || 0} times</span></div>
     <div class="info-item"><span class="lbl">Form Submitted</span><span class="val">${visitor.contact_form_submitted ? 'Yes' : 'No'}</span></div>
   `;
 
@@ -781,10 +772,6 @@ async function openVisitorDetails(visitor) {
           case 'project_click':
             desc = `Clicked Project Card`;
             meta = e.event_data?.project_name || 'Project Details';
-            break;
-          case 'resume_download':
-            desc = 'Downloaded Resume / CV placeholder';
-            meta = 'resume.pdf';
             break;
           case 'contact_submit':
             const status = e.event_data?.success ? 'Success' : 'Failed';
