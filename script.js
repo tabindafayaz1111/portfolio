@@ -327,7 +327,9 @@ document.querySelectorAll(".cards .card").forEach((card) => {
   });
 });
 
-/* ============ Contact form (Web3Forms) ============ */
+/* ============ Contact form (Web3Forms) — commented out temporarily ============
+   To restore: remove the block comment markers below.
+
 const contactForm = document.getElementById("contactForm");
 if (contactForm) {
   const status = document.getElementById("formStatus");
@@ -383,6 +385,7 @@ if (contactForm) {
     }
   });
 }
+============================================================================ */
 
 /* ============ Scroll progress bar ============ */
 const scrollProgress = document.getElementById("scrollProgress");
